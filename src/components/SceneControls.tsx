@@ -28,6 +28,7 @@ interface SceneControlsProps {
   onToggleLowEndMode?: () => void;
   isBlackHoleEasterEgg?: boolean;
   onToggleBlackHoleEasterEgg?: () => void;
+  onOpenGuide?: () => void;
 }
 
 export function SceneControls({
@@ -45,6 +46,7 @@ export function SceneControls({
   onToggleLowEndMode,
   isBlackHoleEasterEgg = false,
   onToggleBlackHoleEasterEgg,
+  onOpenGuide,
 }: SceneControlsProps) {
   const [showInfo, setShowInfo] = useState(false);
   const [showMobileMore, setShowMobileMore] = useState(false);
@@ -228,17 +230,24 @@ export function SceneControls({
                 }`}
               >
                 <span className="w-1 h-1 rounded-full bg-[#8b3c1b]" />
-                <span>{isBlackHoleEasterEgg ? "RESTORE SUN & MOON" : "AWAKEN GARGANTUA"}</span>
+                <span>{isBlackHoleEasterEgg ? "RESTORE SUN & MOON" : "COSMIC ANOMALY"}</span>
               </button>
             )}
 
             {/* Guide Button */}
             <button
-              onClick={() => setShowInfo(true)}
+              onClick={() => {
+                if (onOpenGuide) {
+                  onOpenGuide();
+                  setShowMobileMore(false);
+                } else {
+                  setShowInfo(true);
+                }
+              }}
               className="col-span-2 parchment-chip parchment-chip-interactive px-1.5 py-1 flex items-center justify-center gap-1 cursor-pointer"
             >
               <Info className="w-2.5 h-2.5 text-[#8b3c1b]" />
-              <span>VIEW SYSTEM LORE & GUIDE</span>
+              <span>EXPEDITION GUIDE // TUTORIAL</span>
             </button>
           </div>
         </div>
@@ -338,10 +347,14 @@ export function SceneControls({
           <button
             onClick={() => {
               soundFx.hover();
-              setShowInfo(!showInfo);
+              if (onOpenGuide) {
+                onOpenGuide();
+              } else {
+                setShowInfo(!showInfo);
+              }
             }}
             className="parchment-chip parchment-chip-interactive px-1.5 py-0.5 text-[10px] font-mono flex items-center gap-1 cursor-pointer"
-            title="View System Lore & Shortcuts"
+            title="View Expedition Guide & Shortcuts"
           >
             <Info className="w-3 h-3 text-[#8b3c1b]" />
             <span>GUIDE</span>
@@ -350,7 +363,7 @@ export function SceneControls({
           <span className="text-[10px] font-mono text-[#59432d] hidden xl:inline max-w-[200px] truncate pl-1 font-medium">
             {isBlackHoleEasterEgg
               ? "GARGANTUA // 'BLACK' to exit"
-              : "Sun & Moon // Type B-L-A-C-K"}
+              : "Sun & Moon // Celestial Secrets"}
           </span>
         </div>
 
@@ -441,7 +454,7 @@ export function SceneControls({
               title={
                 isBlackHoleEasterEgg
                   ? "Gargantua Singularity Active"
-                  : "Summon Gargantua (or type 'BLACK')"
+                  : "Cosmic Anomaly"
               }
               className={`px-1.5 py-0.5 text-[10px] font-mono transition-all cursor-pointer flex items-center gap-1 ${
                 isBlackHoleEasterEgg ? "parchment-chip-active" : "parchment-chip parchment-chip-interactive"
@@ -449,7 +462,7 @@ export function SceneControls({
             >
               <span className="w-1 h-1 rounded-full bg-[#8b3c1b]" />
               <span className="font-bold">
-                {isBlackHoleEasterEgg ? "SINGULARITY" : "B-L-A-C-K"}
+                {isBlackHoleEasterEgg ? "SINGULARITY" : "ANOMALY"}
               </span>
             </button>
           )}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { LiquidOcean, DEFAULT_THEME } from "@/components/LiquidOcean";
 import { HeaderNav } from "@/components/HeaderNav";
 import { DossierModal } from "@/components/DossierModal";
+import { TutorialModal } from "@/components/TutorialModal";
 import { SceneControls } from "@/components/SceneControls";
 import { type BuildingConfig, BUILDINGS, PORTFOLIO_DATA } from "@/data/portfolioData";
 import { soundFx } from "@/utils/audio";
@@ -27,6 +28,15 @@ export function App() {
       return isMobile || isLowHardware;
     }
     return false;
+  });
+
+  // Tutorial / Expedition Guide Screen on First Load
+  const [showTutorial, setShowTutorial] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const hasSeen = localStorage.getItem("portfolio_has_seen_tutorial");
+      return hasSeen !== "true";
+    }
+    return true;
   });
 
   // Secret Easter Egg state: unlocked by typing B-L-A-C-K, clicking distant black hole at night, or HUD button
@@ -250,6 +260,7 @@ export function App() {
           onToggleLowEndMode={handleToggleLowEndMode}
           isBlackHoleEasterEgg={isBlackHoleEasterEgg}
           onToggleBlackHoleEasterEgg={handleToggleBlackHoleEasterEgg}
+          onOpenGuide={() => setShowTutorial(true)}
         />
       </LiquidOcean>
 
@@ -258,6 +269,12 @@ export function App() {
         activeTab={activeTab}
         onClose={handleCloseModal}
         onSelectTab={setActiveTab}
+      />
+
+      {/* Ancient Manuscript Scroll Tutorial & Expedition Guide Modal */}
+      <TutorialModal
+        isOpen={showTutorial}
+        onClose={() => setShowTutorial(false)}
       />
 
       {/* Screen Stagger & Big Centered "EASTER EGG ACTIVATED" Announcement */}
