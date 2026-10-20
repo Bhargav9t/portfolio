@@ -1,0 +1,64 @@
+/* App root styles */
+#root {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #000000;
+}
+
+/* Violent screen tremor / stagger animation when Easter Egg is activated */
+@keyframes screen-stagger {
+  0% { transform: translate(0px, 0px) rotate(0deg); filter: contrast(100%); }
+  5% { transform: translate(-18px, 14px) rotate(-1.4deg); filter: contrast(160%) hue-rotate(25deg); }
+  10% { transform: translate(20px, -16px) rotate(1.5deg); filter: contrast(220%) invert(8%); }
+  16% { transform: translate(-16px, -12px) rotate(-1.1deg); filter: contrast(150%); }
+  22% { transform: translate(16px, 14px) rotate(1.2deg); filter: contrast(180%) hue-rotate(-30deg); }
+  30% { transform: translate(-13px, 10px) rotate(-0.8deg); filter: contrast(155%); }
+  38% { transform: translate(14px, -11px) rotate(0.9deg); filter: contrast(170%); }
+  46% { transform: translate(-10px, -8px) rotate(-0.6deg); filter: contrast(135%); }
+  55% { transform: translate(11px, 9px) rotate(0.6deg); filter: contrast(140%); }
+  65% { transform: translate(-8px, 6px) rotate(-0.4deg); filter: contrast(120%); }
+  75% { transform: translate(8px, -5px) rotate(0.35deg); filter: contrast(125%); }
+  84% { transform: translate(-5px, 4px) rotate(-0.2deg); filter: contrast(110%); }
+  92% { transform: translate(3px, -2px) rotate(0.1deg); filter: contrast(105%); }
+  100% { transform: translate(0px, 0px) rotate(0deg); filter: contrast(100%); }
+}
+
+.animate-screen-stagger {
+  animation: screen-stagger 4.2s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+
+/* Stagger text glitch animation */
+@keyframes stagger-text {
+  0% { transform: scale(0.65) translate(0, 0); opacity: 0; filter: blur(8px); }
+  6% { transform: scale(1.18) translate(-12px, 6px); opacity: 1; filter: blur(0px); text-shadow: -8px 0 35px #ef4444, 8px 0 35px #38bdf8; }
+  14% { transform: scale(0.94) translate(10px, -7px); text-shadow: 7px 0 40px #ef4444, -7px 0 40px #38bdf8; }
+  22% { transform: scale(1.08) translate(-7px, -5px); text-shadow: -6px 0 45px #ef4444, 6px 0 45px #ffffff; }
+  32% { transform: scale(1.0) translate(6px, 5px); text-shadow: 0 0 50px #ef4444; }
+  45% { transform: scale(1.04) translate(-4px, 3px); text-shadow: 0 0 55px #ef4444; }
+  60% { transform: scale(1.0) translate(0, 0); opacity: 1; text-shadow: 0 0 45px #ef4444; }
+  85% { transform: scale(1.0) translate(0, 0); opacity: 0.98; }
+  100% { transform: scale(0.95) translate(0, 10px); opacity: 0; }
+}
+
+.animate-stagger-text {
+  animation: stagger-text 6s ease-in-out forwards;
+}
+
+/* 3D Tool Cursor Overrides & Touch Protection */
+.tool-3d-cursor-overlay,
+.tool-3d-cursor-overlay *,
+.tool-3d-cursor-overlay div,
+.tool-3d-cursor-overlay canvas {
+  pointer-events: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.has-3d-cursor,
+  body.has-3d-cursor * {
+    cursor: none !important;
+  }
+}
+
