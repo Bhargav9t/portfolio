@@ -311,19 +311,21 @@ export function ToolkitWheel({
     setIsOpen(false);
   };
 
+  const wheelContainerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Pointer move when wheel is open: aim angle determines highlighted sector
-    const handlePointerMove = (e: MouseEvent) => {
+    const handleMove = (clientX: number, clientY: number) => {
       if (!isOpen) return;
 
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      const dx = e.clientX - centerX;
-      const dy = e.clientY - centerY;
+      const rect = wheelContainerRef.current?.getBoundingClientRect();
+      const centerX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+      const centerY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
+      const dx = clientX - centerX;
+      const dy = clientY - centerY;
       const dist = Math.hypot(dx, dy);
 
-      // Aiming direction selects sector when outside 24px center deadzone
-      if (dist > 24) {
+      // Aiming direction selects sector when outside center deadzone
+      if (dist > 18) {
         let angleDeg = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
         if (angleDeg < 0) angleDeg += 360;
 
@@ -333,6 +335,16 @@ export function ToolkitWheel({
         if (sectorIdx >= 0 && sectorIdx < SECTOR_COUNT && sectorIdx !== hoveredIndex) {
           selectSectorIndex(sectorIdx, true);
         }
+      }
+    };
+
+    const handlePointerMove = (e: MouseEvent) => {
+      handleMove(e.clientX, e.clientY);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
       }
     };
 
@@ -364,20 +376,22 @@ export function ToolkitWheel({
     };
 
     window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
       window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, hoveredIndex, activeTool, onSelectTool, onTriggerAction]);
 
   return (
     <>
-      {/* 1. RADIAL WEAPON TOOLKIT WHEEL (TRIGGERED ONLY VIA Q) */}
+      {/* 1. RADIAL WEAPON TOOLKIT WHEEL (TRIGGERED ONLY VIA Q OR HUD BUTTON) */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 select-none flex items-center justify-center bg-black/60 backdrop-blur-[4px] animate-in fade-in duration-100"
+          className="fixed inset-0 z-50 select-none flex items-center justify-center bg-black/75 backdrop-blur-md animate-in fade-in duration-100 p-2"
           onClick={(e) => {
             // Clicking backdrop closes wheel
             if (e.target === e.currentTarget) {
@@ -385,17 +399,23 @@ export function ToolkitWheel({
             }
           }}
         >
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-xl bg-black/60 border border-white/20 text-[#d5b893] hover:text-white font-mono text-xs flex items-center gap-1 cursor-pointer backdrop-blur-md active:scale-95"
+          >
+            ✕ CLOSE
+          </button>
+
           <div
-            className="relative"
-            style={{ width: SIZE, height: SIZE }}
+            ref={wheelContainerRef}
+            className="relative w-[min(560px,90vw)] h-[min(560px,90vw)] max-w-[560px] max-h-[560px]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* The SVG Annular Wheel Geometry */}
             <svg
-              width={SIZE}
-              height={SIZE}
               viewBox={`0 0 ${SIZE} ${SIZE}`}
-              className="overflow-visible filter drop-shadow-[0_0_40px_rgba(0,0,0,0.95)]"
+              className="w-full h-full overflow-visible filter drop-shadow-[0_0_40px_rgba(0,0,0,0.95)]"
             >
               <defs>
                 {/* Radial Glowing Gradients for Each Sector */}
@@ -570,34 +590,34 @@ export function ToolkitWheel({
                   key={`content-${tool.id}`}
                   style={{
                     position: "absolute",
-                    left: posX,
-                    top: posY,
+                    left: `${(posX / SIZE) * 100}%`,
+                    top: `${(posY / SIZE) * 100}%`,
                     transform: "translate(-50%, -50%)",
                     pointerEvents: "none",
                   }}
                   className={`flex flex-col items-center justify-center transition-all duration-100 select-none ${
-                    isSelected ? "scale-110" : "scale-90 opacity-75"
+                    isSelected ? "scale-105 sm:scale-110" : "scale-85 sm:scale-90 opacity-75"
                   }`}
                 >
                   {/* Ammo Count & Mod Hex Badge */}
-                  <div className="flex items-center gap-1.5 mb-1 text-[11px] font-mono font-bold">
+                  <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1 text-[9px] sm:text-[11px] font-mono font-bold">
                     <AmmoBulletsIcon color={isSelected ? tool.color : "#94a3b8"} />
                     <span style={{ color: isSelected ? tool.color : "#94a3b8" }}>{tool.ammo}</span>
                     <ModHexBadge id={tool.id} color={isSelected ? tool.color : "#94a3b8"} />
                   </div>
 
                   {/* Weapon Silhouette */}
-                  <div className="filter drop-shadow-[0_0_8px_rgba(0,0,0,0.8)]">
+                  <div className="filter drop-shadow-[0_0_8px_rgba(0,0,0,0.8)] scale-85 sm:scale-100">
                     <WeaponVectorSilhouette
                       id={tool.id}
                       color={isSelected ? tool.color : "#94a3b8"}
-                      size={68}
+                      size={60}
                     />
                   </div>
 
                   {/* Sector Title Label */}
                   <span
-                    className="text-[10px] font-mono font-extrabold tracking-wider uppercase mt-1 px-1.5 py-0.5 rounded"
+                    className="text-[8px] sm:text-[10px] font-mono font-extrabold tracking-wider uppercase mt-0.5 sm:mt-1 px-1 sm:px-1.5 py-0.2 sm:py-0.5 rounded"
                     style={{
                       color: isSelected ? "#000000" : "#ffffff",
                       backgroundColor: isSelected ? tool.color : "rgba(0,0,0,0.6)",
@@ -611,10 +631,10 @@ export function ToolkitWheel({
 
             {/* CENTER HUB TELEMETRY DISPLAY */}
             <div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex flex-col items-center justify-center text-center p-4 pointer-events-none select-none"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full flex flex-col items-center justify-center text-center p-2 sm:p-4 pointer-events-none select-none"
               style={{
-                width: INNER_R * 1.8,
-                height: INNER_R * 1.8,
+                width: `${((INNER_R * 1.8) / SIZE) * 100}%`,
+                height: `${((INNER_R * 1.8) / SIZE) * 100}%`,
                 backgroundColor: "rgba(6, 14, 10, 0.92)",
                 boxShadow: `inset 0 0 25px ${selectedSector.color}33`,
               }}

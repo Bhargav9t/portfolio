@@ -55,10 +55,10 @@ export function DossierModal({ activeTab, onClose, onSelectTab }: DossierModalPr
         }}
       />
 
-      {/* Main Glassmorphic HUD Dossier Window: Reduced compact size */}
-      <div className="relative w-full max-w-2xl max-h-[72vh] flex flex-col rounded-xl border border-[#617891]/40 bg-[#1c293f]/95 shadow-[0_0_40px_rgba(37,52,79,0.85)] backdrop-blur-2xl overflow-hidden z-10 transition-all">
+      {/* Main Glassmorphic HUD Dossier Window: Responsive sizing */}
+      <div className="relative w-full max-w-2xl max-h-[88vh] sm:max-h-[80vh] md:max-h-[74vh] flex flex-col rounded-xl border border-[#617891]/40 bg-[#1c293f]/95 shadow-[0_0_40px_rgba(37,52,79,0.85)] backdrop-blur-2xl overflow-hidden z-10 transition-all">
         {/* Top Window Chrome Bar */}
-        <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#617891]/35 bg-[#25344f]/90 select-none">
+        <div className="flex items-center justify-between px-2.5 py-1.5 sm:px-3 border-b border-[#617891]/35 bg-[#25344f]/90 select-none">
           {/* Left: Bottle Status and Callout */}
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-[#d5b893] shadow-[0_0_8px_#d5b893] animate-pulse" />
@@ -67,7 +67,7 @@ export function DossierModal({ activeTab, onClose, onSelectTab }: DossierModalPr
                 [{currentBuilding.number}]
               </span>
               <span className="text-[#f5ebd9] font-bold text-xs tracking-wider">
-                BOTTLE // {currentBuilding.label}
+                {currentBuilding.label}
               </span>
               <span className="hidden sm:inline-block text-[10px] text-[#d5b893]/75">
                 — {currentBuilding.subtitle}
@@ -76,24 +76,26 @@ export function DossierModal({ activeTab, onClose, onSelectTab }: DossierModalPr
           </div>
 
           {/* Right: Quick Tab Steppers & Close Button */}
-          <div className="flex items-center gap-1">
-            <div className="hidden sm:flex items-center bg-[#25344f]/90 rounded-md border border-[#617891]/35 p-0.5">
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center bg-[#25344f]/90 rounded-md border border-[#617891]/35 p-0.5">
               <button
                 onClick={handlePrev}
                 title="Previous Bottle"
-                className="p-0.5 hover:bg-[#617891]/20 rounded text-[#d5b893] hover:text-white transition-colors cursor-pointer"
+                aria-label="Previous Section"
+                className="p-1 sm:p-0.5 hover:bg-[#617891]/20 rounded text-[#d5b893] hover:text-white transition-colors cursor-pointer"
               >
-                <ChevronLeft className="w-3 h-3" />
+                <ChevronLeft className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
               </button>
               <span className="text-[9px] font-mono px-1 text-[#d5b893]">
-                {currentIndex + 1} / {BUILDINGS.length}
+                {currentIndex + 1}/{BUILDINGS.length}
               </span>
               <button
                 onClick={handleNext}
                 title="Next Bottle"
-                className="p-0.5 hover:bg-[#617891]/20 rounded text-[#d5b893] hover:text-white transition-colors cursor-pointer"
+                aria-label="Next Section"
+                className="p-1 sm:p-0.5 hover:bg-[#617891]/20 rounded text-[#d5b893] hover:text-white transition-colors cursor-pointer"
               >
-                <ChevronRight className="w-3 h-3" />
+                <ChevronRight className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
               </button>
             </div>
 
@@ -103,15 +105,16 @@ export function DossierModal({ activeTab, onClose, onSelectTab }: DossierModalPr
                 onClose();
               }}
               title="Close (Esc)"
-              className="p-1 rounded-md bg-[#d5b893]/15 hover:bg-[#d5b893]/30 border border-[#d5b893]/50 text-[#f5ebd9] transition-all cursor-pointer"
+              aria-label="Close Modal"
+              className="p-1.5 sm:p-1 rounded-md bg-[#d5b893]/15 hover:bg-[#d5b893]/30 border border-[#d5b893]/50 text-[#f5ebd9] transition-all cursor-pointer flex items-center justify-center min-w-[28px] min-h-[28px]"
             >
-              <X className="w-3 h-3" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* Modal Scrollable Content Body: Compact padding */}
-        <div className="flex-1 overflow-y-auto p-2.5 sm:p-3.5 space-y-2.5 custom-scrollbar text-[#f5ebd9]">
+        {/* Modal Scrollable Content Body: Responsive padding & touch-pan-y */}
+        <div className="flex-1 overflow-y-auto p-2.5 sm:p-3.5 space-y-2.5 custom-scrollbar text-[#f5ebd9] overscroll-contain touch-pan-y">
           {activeTab === "about" && (
             <AboutView onOpenContact={() => onSelectTab("contact")} />
           )}

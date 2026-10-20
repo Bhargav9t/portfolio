@@ -186,8 +186,8 @@ export function App() {
 
         {/* Ambient Bottom-Left Hero Card (Visible when no modal is open) */}
         {!activeTab && (
-          <div className="absolute bottom-20 left-3 md:left-6 z-30 pointer-events-none max-w-[230px] sm:max-w-[250px] animate-in fade-in duration-300">
-            <div className="parchment-card p-2.5 sm:p-3 pointer-events-auto space-y-1.5">
+          <div className="absolute bottom-13 sm:bottom-16 md:bottom-20 left-2.5 sm:left-3 md:left-6 z-30 pointer-events-none max-w-[220px] sm:max-w-[250px] animate-in fade-in duration-300">
+            <div className="parchment-card p-2 sm:p-3 pointer-events-auto space-y-1 sm:space-y-1.5">
               <div className="flex items-center gap-1.5">
                 <span className="parchment-chip text-[9px] px-1 py-0.2">
                   <span className={`w-1 h-1 rounded-full animate-ping ${

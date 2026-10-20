@@ -385,12 +385,125 @@ function CameraRig({
       }
     };
 
+    const getInitialRadius = () => {
+      if (typeof window !== "undefined" && window.innerWidth < 768) {
+        return 21.0;
+      }
+      return DEFAULT_RADIUS;
+    };
+
+    // Touch event listeners for mobile devices
+    const touchStartPos = { x: 0, y: 0 };
+    const lastTouchPos = { x: 0, y: 0 };
+    let initialPinchDist = 0;
+    let initialPinchRadius = DEFAULT_RADIUS;
+    let isTouchOrbiting = false;
+    let isPinching = false;
+
+    const isInsideScrollable = (target: EventTarget | null) => {
+      let el = target as HTMLElement | null;
+      while (el && el !== document.body) {
+        if (
+          el.classList.contains("overflow-y-auto") ||
+          el.getAttribute("role") === "dialog" ||
+          el.tagName === "BUTTON" ||
+          el.tagName === "INPUT" ||
+          el.classList.contains("pointer-events-auto")
+        ) {
+          return true;
+        }
+        el = el.parentElement;
+      }
+      return false;
+    };
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (isInsideScrollable(e.target)) return;
+
+      if (e.touches.length === 1) {
+        isTouchOrbiting = true;
+        isPinching = false;
+        isManual.current = true;
+        touchStartPos.x = e.touches[0].clientX;
+        touchStartPos.y = e.touches[0].clientY;
+        lastTouchPos.x = e.touches[0].clientX;
+        lastTouchPos.y = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        isTouchOrbiting = false;
+        isPinching = true;
+        isManual.current = true;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialPinchDist = Math.hypot(dx, dy);
+        initialPinchRadius = targetRadius.current;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isTouchOrbiting && !isPinching) return;
+      if (isInsideScrollable(e.target)) return;
+
+      if (isPinching && e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+        if (initialPinchDist > 0) {
+          const factor = initialPinchDist / Math.max(10, dist);
+          targetRadius.current = Math.max(6.0, Math.min(32.0, initialPinchRadius * factor));
+        }
+        return;
+      }
+
+      if (isTouchOrbiting && e.touches.length === 1) {
+        const touch = e.touches[0];
+        const dx = touch.clientX - lastTouchPos.x;
+        const dy = touch.clientY - lastTouchPos.y;
+        lastTouchPos.x = touch.clientX;
+        lastTouchPos.y = touch.clientY;
+
+        const touchOrbitSpeed = 0.007;
+        const backRatio = Math.min(1.0, Math.abs(currentTheta.current) / Math.PI);
+        const pushingDeeper = (currentTheta.current >= 0 && dx < 0) || (currentTheta.current < 0 && dx > 0);
+
+        let dragResistance = 1.0;
+        if (backRatio > 0.20) {
+          const intensity = (backRatio - 0.20) / 0.80;
+          dragResistance = Math.max(0.05, 1.0 - Math.pow(intensity, 1.85) * 0.95);
+        }
+
+        if (pushingDeeper) {
+          targetTheta.current -= dx * touchOrbitSpeed * dragResistance;
+        } else {
+          targetTheta.current -= dx * touchOrbitSpeed * 1.25;
+        }
+
+        targetPhi.current += dy * touchOrbitSpeed;
+        targetPhi.current = Math.max(0.08, Math.min(1.48, targetPhi.current));
+      }
+    };
+
+    const onTouchEnd = () => {
+      isTouchOrbiting = false;
+      isPinching = false;
+    };
+
+    const onResize = () => {
+      if (!isManual.current && !activeTab) {
+        targetRadius.current = getInitialRadius();
+      }
+    };
+
     window.addEventListener("mousedown", onMouseDown, { passive: false });
     window.addEventListener("mousemove", onMouseMove, { passive: false });
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("auxclick", onAuxClick, { passive: false });
     window.addEventListener("wheel", onWheel, { passive: true });
     window.addEventListener("contextmenu", onContextMenu);
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    window.addEventListener("resize", onResize);
 
     return () => {
       window.removeEventListener("mousedown", onMouseDown);
@@ -399,9 +512,14 @@ function CameraRig({
       window.removeEventListener("auxclick", onAuxClick);
       window.removeEventListener("wheel", onWheel);
       window.removeEventListener("contextmenu", onContextMenu);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+      window.removeEventListener("resize", onResize);
       document.body.style.cursor = "auto";
     };
-  }, [onCameraHudUpdate]);
+  }, [onCameraHudUpdate, activeTab]);
 
   useFrame(({ clock }, delta) => {
     const dt = Math.min(0.04, delta);

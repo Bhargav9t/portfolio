@@ -852,15 +852,25 @@ export function Tool3DCursor({
     };
   }, [activeTool]);
 
-  // Apply `has-3d-cursor` to body to hide native arrow cursor on desktop mouse devices
+  const isTouchDevice = useMemo(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.matchMedia("(pointer: coarse)").matches ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0
+    );
+  }, []);
+
+  // Apply `has-3d-cursor` to body to hide native arrow cursor only on desktop mouse devices
   useEffect(() => {
+    if (isTouchDevice) return;
     document.body.classList.add("has-3d-cursor");
     return () => {
       document.body.classList.remove("has-3d-cursor");
     };
-  }, []);
+  }, [isTouchDevice]);
 
-  if (!isVisible) return null;
+  if (isTouchDevice || !isVisible) return null;
 
   return (
     <div

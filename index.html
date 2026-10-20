@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><rect x='25' y='25' width='50' height='50' fill='%23f00589'/><path d='M10 80 Q 50 60 90 80' stroke='%23f00589' stroke-width='4' fill='none'/></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Bhargav | Interactive 3D Portfolio</title>
     <meta name="description" content="Explore the interactive 3D monolith archipelago portfolio of Bhargav featuring Projects, Publications, Research, and Engineering." />
     <!-- Google Fonts -->
@@ -11,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-black text-white antialiased overflow-hidden select-none">
+  <body class="bg-black text-white antialiased overflow-hidden select-none touch-manipulation">
     <div id="root" class="w-full h-full"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
